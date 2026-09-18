@@ -201,6 +201,13 @@ async function buildTarget(name) {
     root,
     configFile: false, // build options live here, not in vite.config.js
     plugins: [copyStaticAssets(outDir, writeManifest)],
+    // Selects the capture path in src/capture.js (via src/target.js) for this
+    // target: 'chrome' keeps html2canvas, 'firefox' switches to native
+    // chrome.tabs.captureTab. vite.config.js's own default ('chrome') only
+    // covers `vite dev` and Vitest, which don't go through this build.
+    define: {
+      __NODESNIP_TARGET__: JSON.stringify(name),
+    },
     build: {
       outDir,
       sourcemap: false,

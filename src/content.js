@@ -1,5 +1,6 @@
 // src/content.js
 import { captureElement, classifyCaptureError } from './capture.js'
+import { TARGET } from './target.js'
 
 // Marker added to injected top-level nodes for DOM inspection. Ownership itself is
 // reference-based because a page can reuse any public attribute or ID.
@@ -221,11 +222,35 @@ function activatePicker() {
     try { chrome.runtime.sendMessage({ action: 'pickerCancelled' }) } catch {}
   }
 
-  // Every action is the same pipeline around a different destination: tear down the
-  // picker, show the spinner, yield a frame so it actually paints, capture, hand the
-  // blob to `sink`, then clear the badge. `action` only names the failure wording.
+  // Every action is the same pipeline around a different destination: tear down
+  // the picker, capture, hand the blob to `sink`, then clear the badge. `action`
+  // only names the failure wording.
+  //
+  // The two targets order the spinner differently. Chrome's html2canvas clones
+  // and renders only `target`'s own subtree, so the full-viewport spinner (a
+  // sibling, not a descendant of target) never ends up in its output — it can go
+  // up immediately, before the capture. Firefox's native path is a real
+  // screenshot of the tab, so any NodeSnip UI still on screen when it fires would
+  // be captured: cleanup()'s removals must finish painting (two animation
+  // frames) and the screenshot must already be taken before the spinner appears.
   async function runCaptureAction(target, action, sink) {
     cleanup()
+
+    if (TARGET === 'firefox') {
+      await waitTwoAnimationFrames()
+      try {
+        const blob = await captureElement(target)
+        showSpinner()
+        await sink(blob)
+        try { chrome.runtime.sendMessage({ action: 'pickerCancelled' }) } catch {}
+      } catch (err) {
+        reportCaptureError(err, action)
+      } finally {
+        removeSpinner()
+      }
+      return
+    }
+
     showSpinner()
     await new Promise(r => setTimeout(r, 0))
     try {
@@ -509,6 +534,14 @@ function showError(message) {
   el.textContent = `NodeSnip: ${message}`
   document.body.appendChild(el)
   setTimeout(() => removeOwnedNode(el), 4000)
+}
+
+// Firefox target only: waits for two paints so cleanup()'s node removals are
+// actually reflected on screen before the native-capture screenshot fires.
+function waitTwoAnimationFrames() {
+  return new Promise(resolve => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve))
+  })
 }
 
 function titleToFilename(title) {

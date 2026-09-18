@@ -13,6 +13,7 @@
 
 import html2canvas from 'html2canvas'
 import { firstOpaqueBackgroundColor, normalizeDocumentColors } from './color-utils.js'
+import { TARGET } from './target.js'
 
 // Messages for failures we don't recognise, keyed by the action the user chose.
 // Expected limitations carry their own userMessage from the pre-flight checks.
@@ -92,6 +93,55 @@ export function classifyCaptureError(err, action) {
   return { expected, message }
 }
 
+// Page-relative bounding box of `target`, in CSS px. Only the Firefox native-
+// capture path needs this: unlike html2canvas (which clones and renders only
+// target's own subtree, positioned by the clone's own layout), captureNative
+// asks the background script to screenshot the real rendered page, so the rect
+// has to be relative to the full document rather than the current viewport —
+// getBoundingClientRect() plus the current scroll offsets.
+function pageRelativeRect(target) {
+  const view = target.ownerDocument.defaultView || window
+  const r = target.getBoundingClientRect()
+  return {
+    x: r.left + view.scrollX,
+    y: r.top + view.scrollY,
+    width: r.width,
+    height: r.height,
+  }
+}
+
+// Decodes a `data:` PNG URL into a Blob. A network round trip (fetch of the data
+// URL) would work too, but this keeps the conversion synchronous and easy to
+// unit test without mocking fetch.
+function dataUrlToBlob(dataUrl) {
+  const [header, base64 = ''] = String(dataUrl).split(',')
+  const mime = /^data:(.*?);base64$/.exec(header ?? '')?.[1] ?? 'image/png'
+  const binary = atob(base64)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+  return new Blob([bytes], { type: mime })
+}
+
+// Firefox target: Firefox forbids a content script from calling
+// document.open()/write() on html2canvas's page-owned clone iframe ("The
+// operation is insecure" — see AGENTS.md and issue #21), so instead this asks
+// the background script to screenshot the tab region covering `target` with the
+// browser's own chrome.tabs.captureTab, and converts the resulting PNG data URL
+// to a Blob. Errors — including a rejected or unsuccessful response — propagate
+// to the caller for classifyCaptureError, same as an html2canvas failure.
+async function captureElementNative(target) {
+  const view = target.ownerDocument.defaultView || window
+  const response = await chrome.runtime.sendMessage({
+    action: 'captureRect',
+    rect: pageRelativeRect(target),
+    scale: view.devicePixelRatio || 1,
+  })
+  if (!response?.ok) {
+    throw new Error(response?.error || 'Native capture failed.')
+  }
+  return dataUrlToBlob(response.dataUrl)
+}
+
 // Renders `target` to a PNG Blob. Rejects on the pre-flight limits below, on any
 // html2canvas failure, and when the canvas can't produce a blob — classify the
 // rejection with classifyCaptureError.
@@ -116,6 +166,10 @@ export async function captureElement(target) {
       err.userMessage = 'Can\'t capture — this element is inside a cross-origin frame.'
       throw err
     }
+  }
+
+  if (TARGET === 'firefox') {
+    return captureElementNative(target)
   }
 
   const canvas = await html2canvas(target, {

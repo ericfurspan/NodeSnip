@@ -40,7 +40,11 @@ not authorize uploading or publishing it.
 - Track injected top-level nodes by exact reference so page-owned IDs or attributes
   cannot impersonate NodeSnip UI.
 - Keep capture logic in `src/capture.js`; it accepts an element and returns a
-  `Promise<Blob>` without depending on picker state.
+  `Promise<Blob>` without depending on picker state. The Chrome build captures
+  with html2canvas; the Firefox build (`src/target.js`, `__NODESNIP_TARGET__`)
+  instead sends a `captureRect` message to a handler in `src/background.js`,
+  which calls `chrome.tabs.captureTab` — behind the same
+  `sender.id !== chrome.runtime.id` rejection as every other message.
 - Keep CSS Color 4 normalization in `src/color-utils.js` and the SVG rectangle guard
   in its dedicated module. Do not merge unrelated capture workarounds.
 - `dist/background.js` and `dist/content.js`, and their Firefox equivalents

@@ -13,7 +13,16 @@ export const sharedOutput = {
   format: 'es',
 }
 
+// __NODESNIP_TARGET__ (see src/target.js) picks the capture path in
+// src/capture.js: 'chrome' (html2canvas) or 'firefox' (native
+// chrome.tabs.captureTab). scripts/build.mjs's own vite.build() call
+// (configFile: false, so it does not read this file) sets the real value per
+// target; the default here only covers `vite dev` and Vitest, so both exercise
+// the Chrome path unless a test stubs src/target.js.
 export default defineConfig({
+  define: {
+    __NODESNIP_TARGET__: JSON.stringify('chrome'),
+  },
   test: {
     environment: 'jsdom',
     globals: true,
