@@ -1,6 +1,8 @@
 node_modules/
 dist/
+dist-firefox/
 .DS_Store
 docs/
 NodeSnip.zip
+NodeSnip-firefox.zip
 HANDOFF.md

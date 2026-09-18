@@ -17,18 +17,30 @@ cancel at any time.
 
 ## Install (unpacked)
 
-Requires Chrome 111 or newer.
+Requires Chrome 111 or newer, or Firefox 128 or newer.
 
 ```bash
 npm install
 npm run build
 ```
 
-Then in Chrome:
+`npm run build` produces both packages: a Chrome build in `dist/` and a Firefox
+build in `dist-firefox/`.
+
+**Chrome:**
 
 1. Go to `chrome://extensions`
 2. Turn on **Developer mode** (top right)
 3. Click **Load unpacked** and select the `dist/` folder
+
+**Firefox:**
+
+1. Go to `about:debugging#/runtime/this-firefox`
+2. Click **Load Temporary Add-on…**
+3. Select `dist-firefox/manifest.json`
+
+A temporary Firefox add-on is removed when Firefox closes and needs reloading next
+session.
 
 Click the NodeSnip toolbar icon on any page to start the picker. Click it again to
 re-activate after a capture.
@@ -72,8 +84,9 @@ from how that works and from browser security rules — these are expected, not 
   reproduce pixel-for-pixel. The common case — text, images, backgrounds, borders,
   gradients, and shadows — is reproduced faithfully.
 
-- **Restricted pages can't be captured at all.** Chrome's internal pages
-  (`chrome://…` and the Chrome Web Store itself) cannot be activated.
+- **Restricted pages can't be captured at all.** Browser-internal pages
+  (`chrome://…` on Chrome, `about:…` on Firefox) and each browser's extension
+  store (the Chrome Web Store, addons.mozilla.org) cannot be activated.
 
 ## Permissions
 
@@ -91,11 +104,12 @@ No host permissions. No access to your browsing history.
 ## Development
 
 ```bash
-npm run dev      # Vite watch mode — rebuild on save, then reload in chrome://extensions
-npm run build    # Production bundle → dist/
-npm test         # Vitest test suite
-npm run icons    # Regenerate the toolbar icons
+npm run dev            # Vite watch mode (Chrome) — rebuild on save, then reload in chrome://extensions
+npm run build          # Production bundle → dist/ (Chrome) and dist-firefox/ (Firefox)
+npm run build:firefox  # Production bundle → dist-firefox/ only
+npm test               # Vitest test suite
+npm run icons          # Regenerate the toolbar icons
 ```
 
-After loading the extension from `dist/`, reload it from `chrome://extensions`
-whenever you rebuild.
+After loading the extension, reload it from `chrome://extensions` (Chrome) or
+`about:debugging#/runtime/this-firefox` (Firefox) whenever you rebuild.
