@@ -217,46 +217,6 @@ describe('content: full-render capture (click)', () => {
     expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({ action: 'pickerCancelled' })
   })
 
-  it('defers revoking the download blob URL past the triggering anchor click (Firefox cancels a download whose URL is revoked synchronously)', async () => {
-    // Let any timer left pending by a prior test's capture pipeline (its own
-    // deferred revoke, scheduled after that test stopped awaiting) fire and settle
-    // before this test starts tracking calls, so it isn't attributed here.
-    await new Promise((r) => setTimeout(r, 20))
-
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-
-    const overlay = document.getElementById('nodesnip-overlay')
-    vi.spyOn(document, 'elementsFromPoint').mockReturnValue([overlay, target])
-    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(
-      { top: 0, left: 0, width: 100, height: 100 },
-    )
-
-    overlay.dispatchEvent(new MouseEvent('mousemove', { clientX: 50, clientY: 50 }))
-    overlay.dispatchEvent(new MouseEvent('click', { clientX: 50, clientY: 50 }))
-
-    // vi.spyOn reuses an existing spy (and its call history) rather than wrapping
-    // again if the method is already mocked by an earlier test in this file that
-    // did not restore it — clear both spies so only this test's calls count.
-    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL')
-    revokeSpy.mockClear()
-    let revokeCallsWhenAnchorClicked = null
-    const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {
-      revokeCallsWhenAnchorClicked = revokeSpy.mock.calls.length
-    })
-    anchorClick.mockClear()
-
-    document.getElementById('ns-btn-download').click()
-    await new Promise((r) => setTimeout(r, 0))
-    await new Promise((r) => setTimeout(r, 0))
-
-    expect(anchorClick).toHaveBeenCalledOnce()
-    // Not yet revoked at the moment the anchor's click() fired the download.
-    expect(revokeCallsWhenAnchorClicked).toBe(0)
-    // Revoked afterward, on a deferred tick.
-    expect(revokeSpy).toHaveBeenCalledOnce()
-  })
-
   it('writes the rendered PNG to the clipboard on Copy', async () => {
     const target = document.createElement('div')
     document.body.appendChild(target)
@@ -275,7 +235,7 @@ describe('content: full-render capture (click)', () => {
     expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({ action: 'pickerCancelled' })
   })
 
-  it('shows a browser-neutral clipboard error pointing to Download when Copy is rejected', async () => {
+  it('shows a clipboard-specific error when Chrome rejects Copy', async () => {
     navigator.clipboard.write.mockRejectedValueOnce(new Error('NotAllowedError'))
     const target = document.createElement('div')
     document.body.appendChild(target)
@@ -290,35 +250,9 @@ describe('content: full-render capture (click)', () => {
     document.getElementById('ns-btn-copy').click()
     await new Promise((r) => setTimeout(r, 0))
 
-    const message = document.getElementById('nodesnip-error').textContent
-    expect(message).not.toContain('Chrome')
-    expect(message).toContain('your browser could not write the image to the clipboard')
-    expect(message).toContain('Try Download instead')
-  })
-
-  it('shows the same neutral clipboard error when ClipboardItem is unavailable', async () => {
-    const originalClipboardItem = global.ClipboardItem
-    delete global.ClipboardItem
-    try {
-      const target = document.createElement('div')
-      document.body.appendChild(target)
-      const overlay = document.getElementById('nodesnip-overlay')
-      vi.spyOn(document, 'elementsFromPoint').mockReturnValue([overlay, target])
-      vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(
-        { top: 0, left: 0, width: 100, height: 100 },
-      )
-
-      overlay.dispatchEvent(new MouseEvent('mousemove', { clientX: 50, clientY: 50 }))
-      overlay.dispatchEvent(new MouseEvent('click', { clientX: 50, clientY: 50 }))
-      document.getElementById('ns-btn-copy').click()
-      await new Promise((r) => setTimeout(r, 0))
-
-      const message = document.getElementById('nodesnip-error').textContent
-      expect(message).toContain('your browser could not write the image to the clipboard')
-      expect(message).toContain('Try Download instead')
-    } finally {
-      global.ClipboardItem = originalClipboardItem
-    }
+    expect(document.getElementById('nodesnip-error').textContent).toContain(
+      'Chrome could not write the image to your clipboard',
+    )
   })
 
   it('starts only one capture when an action button is clicked repeatedly', async () => {

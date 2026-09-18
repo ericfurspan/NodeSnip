@@ -6,12 +6,10 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "build:firefox": "node scripts/build.mjs --target=firefox",
     "dev": "node scripts/build.mjs --watch",
     "test": "vitest run",
     "icons": "node scripts/generate-icons.js",
-    "package": "npm run build && rm -f NodeSnip.zip && cd dist && zip -r ../NodeSnip.zip . && echo 'NodeSnip.zip ready'",
-    "package:firefox": "npm run build:firefox && rm -f NodeSnip-firefox.zip && cd dist-firefox && zip -r ../NodeSnip-firefox.zip . && echo 'NodeSnip-firefox.zip ready'"
+    "package": "npm run build && rm -f NodeSnip.zip && cd dist && zip -r ../NodeSnip.zip . && echo 'NodeSnip.zip ready'"
   },
   "dependencies": {
     "html2canvas": "^1.4.1"
