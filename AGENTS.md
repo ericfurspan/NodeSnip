@@ -1,9 +1,8 @@
 # NodeSnip Project Instructions
 
-NodeSnip is a Manifest V3 extension for Chrome and Firefox that captures a
-user-selected DOM element as a PNG for clipboard copy or local download. Read
-`README.md` for user-facing behavior and setup. Read `STORE_LISTING.md` before
-release or store-listing work.
+NodeSnip is a Manifest V3 Chrome extension that captures a user-selected DOM element
+as a PNG for clipboard copy or local download. Read `README.md` for user-facing behavior
+and setup. Read `STORE_LISTING.md` before release or store-listing work.
 
 ## Design
 
@@ -18,10 +17,8 @@ release or store-listing work.
 npm run dev
 npm test
 npm run build
-npm run build:firefox
 npm run icons
 npm run package
-npm run package:firefox
 ```
 
 After every code change, run `npm test` and then `npm run build`. Fix failures caused
@@ -43,13 +40,9 @@ not authorize uploading or publishing it.
   `Promise<Blob>` without depending on picker state.
 - Keep CSS Color 4 normalization in `src/color-utils.js` and the SVG rectangle guard
   in its dedicated module. Do not merge unrelated capture workarounds.
-- `dist/background.js` and `dist/content.js`, and their Firefox equivalents
-  `dist-firefox/background.js` and `dist-firefox/content.js`, must remain classic
-  scripts with no `import` or `export`, and the build must not emit `dist/chunks/`
-  or `dist-firefox/chunks/`. The production build enforces this invariant for both
-  targets.
-- The Firefox manifest (`dist-firefox/manifest.json`) is generated at build time
-  from the single source `manifest.json`. Never hand-maintain it separately.
+- `dist/background.js` and `dist/content.js` must remain classic scripts with no
+  `import` or `export`, and the build must not emit `dist/chunks/`. The production
+  build enforces this invariant.
 - Preserve graceful handling for restricted pages, cross-origin frames, detached
   elements, blocked images, and capture failures.
 
@@ -58,7 +51,5 @@ not authorize uploading or publishing it.
 - Store assets live under `screenshots/` and do not ship in the extension package.
 - The store icon is uploaded separately from the packaged extension.
 - Version changes must stay synchronized between `package.json`, `manifest.json`,
-  release-facing documentation, and the packaged ZIP when one is requested — for
-  both the Chrome package (`NodeSnip.zip`) and the Firefox package
-  (`NodeSnip-firefox.zip`).
+  release-facing documentation, and the packaged ZIP when one is requested.
 - Uploading, submitting for review, or publishing requires separate explicit approval.
