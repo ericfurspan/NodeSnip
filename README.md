@@ -17,7 +17,7 @@ cancel at any time.
 
 ## Install (unpacked)
 
-Requires Chrome 111 or newer, or Firefox 128 or newer.
+Requires Chrome 111 or newer, or Firefox 140 or newer.
 
 ```bash
 npm install

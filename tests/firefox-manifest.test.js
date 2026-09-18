@@ -39,7 +39,7 @@ describe('buildFirefoxManifest', () => {
     expect(manifest.browser_specific_settings).toEqual({
       gecko: {
         id: 'nodesnip@mentatweb',
-        strict_min_version: '128.0',
+        strict_min_version: '140.0',
         data_collection_permissions: { required: ['none'] },
       },
     })
