@@ -1,8 +1,9 @@
 # NodeSnip Project Instructions
 
-NodeSnip is a Manifest V3 Chrome extension that captures a user-selected DOM element
-as a PNG for clipboard copy or local download. Read `README.md` for user-facing behavior
-and setup. Read `STORE_LISTING.md` before release or store-listing work.
+NodeSnip is a Manifest V3 extension for Chrome and Firefox that captures a
+user-selected DOM element as a PNG for clipboard copy or local download. Read
+`README.md` for user-facing behavior and setup. Read `STORE_LISTING.md` before
+release or store-listing work.
 
 ## Design
 
@@ -17,8 +18,10 @@ and setup. Read `STORE_LISTING.md` before release or store-listing work.
 npm run dev
 npm test
 npm run build
+npm run build:firefox
 npm run icons
 npm run package
+npm run package:firefox
 ```
 
 After every code change, run `npm test` and then `npm run build`. Fix failures caused
