@@ -530,7 +530,7 @@ async function copyBlobToClipboard(blob) {
   try {
     await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
   } catch (err) {
-    err.userMessage = 'Copy failed — Chrome could not write the image to your clipboard.'
+    err.userMessage = 'Copy failed — your browser could not write the image to the clipboard. Try Download instead.'
     throw err
   }
 }
@@ -543,5 +543,7 @@ function downloadBlobAsPng(blob) {
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  // Deferred rather than synchronous: Firefox can cancel a download whose blob
+  // URL is revoked immediately after the triggering click.
+  setTimeout(() => URL.revokeObjectURL(url), 0)
 }
