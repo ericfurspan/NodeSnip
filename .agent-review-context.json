@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "whenChanged": ["AGENTS.md"],
+      "include": [
+        "package.json",
+        "vite.config.js",
+        "scripts/build.mjs",
+        "tests/background.test.js",
+        "tests/capture.test.js",
+        "tests/color-utils.test.js",
+        "tests/content.test.js",
+        "tests/setup.js",
+        "README.md",
+        "STORE_LISTING.md"
+      ]
+    }
+  ]
+}

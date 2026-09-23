@@ -27,6 +27,20 @@ by the change. Report pre-existing or environment failures clearly.
 Run `npm run package` only when the task requires a new `NodeSnip.zip`. Packaging does
 not authorize uploading or publishing it.
 
+## Verification
+
+- The standard check in Commands is the highest evidence agents can reach. `npm test`
+  runs the Vitest suites under jsdom, which exercise the background, picker, content,
+  capture, and color-normalization logic with `html2canvas` mocked. `npm run build`
+  enforces the classic-script and third-party-notice invariants. Rendering, clipboard
+  writes, and downloads run only in a real browser.
+- Only the Owner can verify the loaded extension in each target browser. A change that
+  claims support for a browser, or changes behavior `README.md` or `STORE_LISTING.md`
+  advertises, needs that real-browser pass before merge. Its pull request names that
+  behavior as unverified by agents and states that the Owner verifies it.
+- Packaging, uploading, and publishing keep the limits in Commands and Release
+  Boundaries.
+
 ## Durable Invariants
 
 - Keep content-script injection on demand. Do not add static `content_scripts` or
