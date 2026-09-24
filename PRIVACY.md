@@ -33,4 +33,4 @@ NodeSnip bundles [html2canvas](https://html2canvas.hertzen.com/) and its open-so
 
 ## Contact
 
-Questions or concerns can be raised via the [GitHub repository](https://github.com/mentatweb/NodeSnip/issues) or by emailing [contact@mentatweb.com](mailto:contact@mentatweb.com).
+Questions or concerns can be raised via the [GitHub repository](https://github.com/ericfurspan/NodeSnip/issues) or by emailing [contact@mentatweb.com](mailto:contact@mentatweb.com).
