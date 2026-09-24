@@ -63,12 +63,12 @@ Writes the generated PNG to the clipboard when the user chooses Copy after captu
 - Selling user data: No.
 - Using user data for unrelated purposes, credit decisions, or personalized advertising: No.
 - Human access to user data: No.
-- Privacy policy URL: `https://github.com/mentatweb/NodeSnip/blob/master/PRIVACY.md`
+- Privacy policy URL: `https://github.com/ericfurspan/NodeSnip/blob/master/PRIVACY.md`
 
 ## Listing links
 
-- Homepage: `https://github.com/mentatweb/NodeSnip`
-- Support: `https://github.com/mentatweb/NodeSnip/issues`
+- Homepage: `https://github.com/ericfurspan/NodeSnip`
+- Support: `https://github.com/ericfurspan/NodeSnip/issues`
 
 ## Assets
 
